@@ -130,3 +130,7 @@ dmypy.json
 
 # editor
 .vscode
+
+# data
+data/*
+!data/Makefile

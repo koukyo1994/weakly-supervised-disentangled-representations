@@ -4,10 +4,10 @@ An implementation of Variational Autoencoders(VAEs) based weakly-supervised dise
 
 ## Supported algorithms
 
-* [ ]: [GroupVAE](https://arxiv.org/abs/1809.02383)
-* [ ]: [Multi-LevelVAE](https://arxiv.org/abs/1705.08841)
-* [ ]: [Adaptive-GVAE](https://arxiv.org/abs/2002.02886)
-* [ ]: [Adaptive-MLVAE](https://arxiv.org/abs/2002.02886)
+* [ ] [GroupVAE](https://arxiv.org/abs/1809.02383)
+* [ ] [Multi-LevelVAE](https://arxiv.org/abs/1705.08841)
+* [ ] [Adaptive-GVAE](https://arxiv.org/abs/2002.02886)
+* [ ] [Adaptive-MLVAE](https://arxiv.org/abs/2002.02886)
 
 ## Requirements
 

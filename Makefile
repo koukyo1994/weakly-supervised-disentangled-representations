@@ -1,0 +1,2 @@
+prepare:
+	make -C data
