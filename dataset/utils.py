@@ -29,6 +29,7 @@ def create_paired_factors(z: np.ndarray,
     k: int
         number of factors that are changed between pairs
     """
+    z_ = z.copy()
     if k == -1:
         # The number of factors that are changed between pairs is randomized
         k_observed = random_state.randint(1, ground_truth_data.num_factors)
@@ -38,15 +39,15 @@ def create_paired_factors(z: np.ndarray,
 
     # Which factor is changed is randomized
     index_list = random_state.choice(
-        z.shape[1], random_state.choice([1, k_observed]), replace=False)
+        z_.shape[1], random_state.choice([1, k_observed]), replace=False)
     idx = -1
     for index in index_list:
-        z[:, index] = np.random.choice(
+        z_[:, index] = np.random.choice(
             range(ground_truth_data.factors_num_values[index]))
         idx = index
     if return_index:
-        return z, idx
-    return z, k_observed
+        return z_, idx
+    return z_, k_observed
 
 
 def visualize_weakly_supervised_dataset(dataset: GroundTruthData, save_path: Union[str, Path], num_images=5):
@@ -159,6 +160,7 @@ if __name__ == "__main__":
     from disentanglement_lib.data.ground_truth.named_data import get_named_ground_truth_data
 
     dataset = get_named_ground_truth_data("dsprites_full")
+
     save_path = Path("./assets/weak_dataset/dsprites_full/")
 
     visualize_weakly_supervised_dataset_with_animation(dataset, save_path)
