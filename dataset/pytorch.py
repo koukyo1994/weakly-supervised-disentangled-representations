@@ -20,6 +20,7 @@ class WeaklySupervisedDataset(torchdata.Dataset):
         factor = self.dataset.sample_factors(1, self.random_state)
         observation = self.dataset.sample_observations_from_factors(
             factor, self.random_state)
+        observation = np.moveaxis(observation, 3, 1)
 
         paired_factor, _ = create_paired_factors(factor,
                                                  ground_truth_data=self.dataset,
@@ -28,6 +29,7 @@ class WeaklySupervisedDataset(torchdata.Dataset):
                                                  k=self.k)
         paired_observation = self.dataset.sample_observations_from_factors(
             paired_factor, self.random_state)
+        paired_observation = np.moveaxis(paired_observation, 3, 1)
 
         observation_pair = np.concatenate([
             observation, paired_observation

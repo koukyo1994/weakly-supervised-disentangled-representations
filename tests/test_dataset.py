@@ -41,9 +41,9 @@ def test_pytorch_dataset():
         observation0 = pair[0]
         observation1 = pair[1]
 
-        if observation0.shape[2] == 1:
-            observation0 = observation0[:, :, 0]
-            observation1 = observation1[:, :, 0]
+        if observation0.shape[0] == 1:
+            observation0 = observation0[0, :, :]
+            observation1 = observation1[0, :, :]
 
         axes[i, 0].imshow(observation0)
         axes[i, 0].set_xlabel(f"{factors[i, 0]}")
