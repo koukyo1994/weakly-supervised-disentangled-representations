@@ -1,21 +1,39 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from .encoder import Encoder
 from .decoder import Decoder
 
 
 class GroupVAE(nn.Module):
-    def __init__(self, input_shape, beta=16.0, n_latents=10, aggregation="label"):
+    def __init__(self, input_shape, beta=16.0, n_latents=10, aggregation="label", label_mode=None):
         super().__init__()
         assert aggregation in {"label", "argmax"}, \
             "`aggregation` must be either 'label' or 'argmax'"
+        if aggregation == "label":
+            assert label_mode is not None, \
+                "`label_mode` must be given if `aggregation` is 'label'"
+            assert label_mode in {"single", "multi"}, \
+                "`label_mode` must be either 'single' or 'multi'"
 
         self.beta = beta
+        self.n_latents = n_latents
         self.aggregation = aggregation
+        self.label_mode = label_mode
 
         self.encoder = Encoder(input_shape=input_shape, n_latents=n_latents)
         self.decoder = Decoder(output_shape=input_shape, n_latents=n_latents)
+
+    def forward(self, x, label, sigmoid=True):
+        mu_0, logvar_0, mu_1, logvar_1 = self.encode(x)
+        new_mu_0, new_logvar_0, new_mu_1, new_logvar_1 = self.aggregate(
+            mu_0, logvar_0, mu_1, logvar_1, label)
+        z_0 = self.reparameterize(new_mu_0, new_logvar_0)
+        z_1 = self.reparameterize(new_mu_1, new_logvar_1)
+        reconstructed_0 = self.decoder(z_0)
+        reconstructed_1 = self.decoder(z_1)
+        return reconstructed_0, reconstructed_1
 
     def encode(self, x):
         assert x.ndim == 5, \
@@ -30,7 +48,71 @@ class GroupVAE(nn.Module):
 
         mu_0, logvar_0 = self.encoder(pair_0)
         mu_1, logvar_1 = self.encoder(pair_1)
-        return (mu_0, logvar_0), (mu_1, logvar_1)
+        return mu_0, logvar_0, mu_1, logvar_1
+
+    def reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor):
+        if self.training:
+            std = torch.exp(0.5 * logvar)
+            return mu + std * torch.rand_like(std)
+        else:
+            return mu
+
+    def aggregate(self,
+                  mu_0: torch.Tensor,
+                  logvar_0: torch.Tensor,
+                  mu_1: torch.Tensor,
+                  logvar_1: torch.Tensor,
+                  label: torch.Tensor):
+        var_0 = logvar_0.exp()
+        var_1 = logvar_1.exp()
+
+        new_mu = 0.5 * mu_0 + 0.5 * mu_1
+        new_logvar = (0.5 * var_0 + 0.5 * var_1).log()
+
+        if self.aggregation == "label":
+            one_hot_label = self.make_one_hot_label(label)
+            mu_sample_0, logvar_sample_0 = self.aggregate_labels(
+                mu_0,
+                logvar_0,
+                new_mu=new_mu,
+                new_logvar=new_logvar,
+                labels=one_hot_label)
+            mu_sample_1, logvar_sample_1 = self.aggregate_labels(
+                mu_1,
+                logvar_1,
+                new_mu=new_mu,
+                new_logvar=new_logvar,
+                labels=one_hot_label)
+        else:
+            kl_per_point = self.kl_divergence_between_z(mu_0, logvar_0, mu_1, logvar_1)
+            mu_sample_0, logvar_sample_0 = self.aggregate_argmax(
+                mu_0,
+                logvar_0,
+                new_mu=new_mu,
+                new_logvar=new_logvar,
+                kl_per_point=kl_per_point)
+            mu_sample_1, logvar_sample_1 = self.aggregate_argmax(
+                mu_1,
+                logvar_1,
+                new_mu=new_mu,
+                new_logvar=new_logvar,
+                kl_per_point=kl_per_point)
+        return mu_sample_0, logvar_sample_0, mu_sample_1, logvar_sample_1
+
+    def make_one_hot_label(self, label: torch.Tensor):
+        assert self.label_mode is not None, "`label_mode` must be given"
+        if self.label_mode == "single":
+            assert label.ndim == 1, \
+                "`label` must be one dimensional if `label_mode` is 'single'"
+            return F.one_hot(label, num_classes=self.n_latents)
+        elif self.label_mode == "multi":
+            assert label.ndim == 3, \
+                "`label` must be three dimensional if `label_mode` is 'multi'"
+            label0 = label[:, 0, :]
+            label1 = label[:, 1, :]
+            return label0 == label1
+        else:
+            raise NotImplementedError
 
     @staticmethod
     def kl_divergence_between_z(mu_0: torch.Tensor,
@@ -73,9 +155,55 @@ class GroupVAE(nn.Module):
             One-hot-encoding with the position(s) of dimension that should not be shared
             shape: (batch_size, n_latents)
 
-        Returns: Tuple[torch.Tensor, torch.Tensor]
+        Returns
+        -------
+        Tuple[torch.Tensor, torch.Tensor]
             Mean and logvar for the new observation
         """
         mu_averaged = torch.where(labels.byte(), mu, new_mu)
         logvar_averaged = torch.where(labels.byte(), logvar, new_logvar)
+        return mu_averaged, logvar_averaged
+
+    @staticmethod
+    def aggregate_argmax(mu: torch.Tensor,
+                         logvar: torch.Tensor,
+                         new_mu: torch.Tensor,
+                         new_logvar: torch.Tensor,
+                         kl_per_point: torch.Tensor,
+                         **kwargs):
+        """
+        Argmax aggregation with adaptive k.
+
+        The bottom k dimensions in terms of distance are not averaged.
+        K is estimated adaptively by binning the distance into two bins of equal width.
+
+        Parameters
+        ----------
+        mu: torch.Tensor
+            Mean of the encoder distribution for the original image
+            shape: (batch_size, n_latents)
+        logvar: torch.Tensor
+            Logvar of the encoder distribution for the original image
+            shape: (batch_size, n_latents)
+        new_mu: torch.Tensor
+            Average mean of the encoder distribution of the pair of images
+            shape: (batch_size, n_latents)
+        new_logvar: torch.Tensor
+            Average logvar of the encoder distribution of the pair of images
+            shape: (batch_size, n_latents)
+        kl_per_point: torch.Tensor
+            Distance between two encoder distributions
+
+        Returns
+        -------
+        Tuple[torch.Tensor, torch.Tensor]
+            Mean and logvar for the new observation
+        """
+        mask_tensor = torch.zeros_like(kl_per_point, dtype=torch.int)
+        for i, kl in enumerate(kl_per_point):
+            histogram = torch.histc(kl, bins=2, min=kl.min(), max=kl.max()).long()  # type: ignore
+            top_indices = torch.topk(kl, k=histogram[1]).indices  # type: ignore
+            mask_tensor[i, top_indices] = 1
+        mu_averaged = torch.where(mask_tensor == 1, mu, new_mu)
+        logvar_averaged = torch.where(mask_tensor == 1, logvar, new_logvar)
         return mu_averaged, logvar_averaged
