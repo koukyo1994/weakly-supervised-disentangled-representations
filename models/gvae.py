@@ -33,7 +33,33 @@ class GroupVAE(nn.Module):
         z_1 = self.reparameterize(new_mu_1, new_logvar_1)
         reconstructed_0 = self.decoder(z_0)
         reconstructed_1 = self.decoder(z_1)
-        return reconstructed_0, reconstructed_1
+        return reconstructed_0, reconstructed_1, new_mu_0, new_logvar_0, new_mu_1, new_logvar_1
+
+    def loss_fn(self,
+                x: torch.Tensor,
+                reconstructed_0: torch.Tensor,
+                reconstructed_1: torch.Tensor,
+                mu_0: torch.Tensor,
+                logvar_0: torch.Tensor,
+                mu_1: torch.Tensor,
+                logvar_1: torch.Tensor):
+        assert x.ndim == 5, \
+            "Input of GroupVAE model should be 5 dimension (batch, pairs, channels, height, width)"
+        assert x.size(1) == 2, \
+            "Second dimension of the input should be a pair (2 elements)"
+        assert x.size(2) in {1, 3}, \
+            "Third dimension of the input should be either 1 or 3"
+
+        recons_error_0 = self.bernoulli_recons_error(reconstructed_0, x[:, 0, :, :, :])
+        recons_error_1 = self.bernoulli_recons_error(reconstructed_1, x[:, 1, :, :, :])
+        recons_error = 0.5 * recons_error_0 + 0.5 * recons_error_1
+
+        kld_0 = self.gaussian_kl(mu_0, logvar_0)
+        kld_1 = self.gaussian_kl(mu_1, logvar_1)
+        kld = 0.5 * kld_0 + 0.5 * kld_1
+
+        loss = recons_error + self.beta * kld
+        return loss, recons_error, kld
 
     def encode(self, x):
         assert x.ndim == 5, \
@@ -207,3 +233,11 @@ class GroupVAE(nn.Module):
         mu_averaged = torch.where(mask_tensor == 1, mu, new_mu)
         logvar_averaged = torch.where(mask_tensor == 1, logvar, new_logvar)
         return mu_averaged, logvar_averaged
+
+    @staticmethod
+    def gaussian_kl(mu: torch.Tensor, logvar: torch.Tensor):
+        return (0.5 * (mu.pow(2) + logvar.exp() - logvar - 1).mean(dim=0)).sum()
+
+    @staticmethod
+    def bernoulli_recons_error(reconstructed: torch.Tensor, original: torch.Tensor):
+        return F.binary_cross_entropy(reconstructed, original, reduction="none").mean(dim=0).sum()
