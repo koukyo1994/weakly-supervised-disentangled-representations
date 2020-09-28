@@ -1,2 +1,4 @@
 disentanglement-lib==1.5
+numpy==1.18.5
 tensorflow==2.3.0
+torch==1.5.1
