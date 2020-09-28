@@ -134,9 +134,15 @@ class GroupVAE(nn.Module):
         elif self.label_mode == "multi":
             assert label.ndim == 3, \
                 "`label` must be three dimensional if `label_mode` is 'multi'"
-            label0 = label[:, 0, :]
-            label1 = label[:, 1, :]
-            return label0 == label1
+            new_label0 = torch.zeros(size=(label.size(0), self.n_latents),
+                                     device=label.device,
+                                     dtype=label.dtype)
+            new_label1 = torch.zeros(size=(label.size(0), self.n_latents),
+                                     device=label.device,
+                                     dtype=label.dtype)
+            new_label0[:, :label.size(2)] = label[:, 0, :]
+            new_label1[:, :label.size(2)] = label[:, 1, :]
+            return new_label0 != new_label1
         else:
             raise NotImplementedError
 

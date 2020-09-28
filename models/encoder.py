@@ -6,25 +6,25 @@ class Encoder(nn.Module):
         super().__init__()
 
         self.conv_encoder = nn.Sequential(
-            nn.Conv2D(in_channels=input_shape[0],
+            nn.Conv2d(in_channels=input_shape[0],
                       out_channels=32,
                       kernel_size=4,
                       stride=2,
                       padding=1),
             nn.ReLU(),
-            nn.Conv2D(in_channels=32,
+            nn.Conv2d(in_channels=32,
                       out_channels=32,
                       kernel_size=4,
                       stride=2,
                       padding=1),
             nn.ReLU(),
-            nn.Conv2D(in_channels=32,
+            nn.Conv2d(in_channels=32,
                       out_channels=64,
                       kernel_size=4,
                       stride=2,
                       padding=1),
             nn.ReLU(),
-            nn.Conv2D(in_channels=64,
+            nn.Conv2d(in_channels=64,
                       out_channels=64,
                       kernel_size=4,
                       stride=2,
@@ -53,7 +53,7 @@ class Encoder(nn.Module):
 
 
 def init_weight(m):
-    if isinstance(m, nn.Conv2D) or isinstance(m, nn.Linear):
+    if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
         nn.init.xavier_uniform_(m.weight)
         if m.bias is not None:
             nn.init.zeros_(m.bias)
