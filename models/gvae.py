@@ -233,7 +233,7 @@ class GroupVAE(nn.Module):
         """
         mask_tensor = torch.zeros_like(kl_per_point, dtype=torch.int)
         for i, kl in enumerate(kl_per_point):
-            histogram = torch.histc(kl, bins=2, min=kl.min(), max=kl.max()).long()  # type: ignore
+            histogram = torch.histc(kl, bins=2, min=kl.min().detach(), max=kl.max().detach()).long()  # type: ignore
             top_indices = torch.topk(kl, k=histogram[1]).indices  # type: ignore
             mask_tensor[i, top_indices] = 1
         mu_averaged = torch.where(mask_tensor == 1, mu, new_mu)
