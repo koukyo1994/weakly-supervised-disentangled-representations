@@ -1,0 +1,27 @@
+globals:
+  seed: 1213
+  device: cuda
+
+models:
+  name: GroupVAE
+  params:
+    input_shape: [1, 64, 64]
+    n_latents: 10
+    aggregation: label
+    label_mode: single
+
+dataset:
+  name: dsprites_full
+  params:
+    seed: 0
+    iterator_len: 20000
+    k: 1
+    return_index: True
+
+loader:
+  batch_size: 64
+
+optimizer:
+  name: Adam
+  params:
+    lr: 0.0001
