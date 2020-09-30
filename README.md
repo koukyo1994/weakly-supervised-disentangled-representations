@@ -20,3 +20,9 @@ git clone https://github.com/koukyo1994/weakly-supervised-disentangled-represent
 cd weakly-supervised-disentangled-representations
 pip install -r requirements.txt
 ```
+
+## Data preparation
+
+```shell
+make prepare
+```

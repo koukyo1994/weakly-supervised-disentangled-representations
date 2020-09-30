@@ -26,4 +26,7 @@ optimizer:
     lr: 0.0001
 
 training:
-  epochs: 100
+  epochs: 1000
+
+logging:
+  validate_interval: 100

@@ -9,7 +9,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from models import get_model
-from utils import (get_parser, load_config, set_seed, AverageMeter, save_reconstructed_images)
+from utils import (get_parser, load_config, set_seed, AverageMeter,
+                   save_reconstructed_images, latent_traversal)
 
 os.environ["DISENTANGLEMENT_LIB_DATA"] = "./data"
 
@@ -60,6 +61,12 @@ def validate(loader, model, device, save_dir: Path, epoch: int):
         original_pairs.cpu(),
         reconstructed_0.detach().cpu(),
         reconstructed_1.detach().cpu())
+    save_path = save_dir / f"latent_traversal_epoch_{epoch}.gif"
+    latent_traversal(model,
+                     x=original_pairs[0, 0, :, :, :],
+                     device=device,
+                     save_path=save_path,
+                     n_imgs=20)
 
 
 if __name__ == "__main__":
@@ -94,4 +101,5 @@ if __name__ == "__main__":
         print("#" * 100)
         print(f"Epoch: {epoch}")
         train_one_epoch(loader, model, optimizer, device)
-        validate(valid_loader, model, device, save_dir=SAVE_DIR, epoch=epoch)
+        if (epoch + 1) % config["logging"]["validate_interval"] == 0:
+            validate(valid_loader, model, device, save_dir=SAVE_DIR, epoch=epoch)
