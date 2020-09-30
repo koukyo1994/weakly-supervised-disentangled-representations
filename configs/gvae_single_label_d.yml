@@ -1,6 +1,5 @@
 globals:
   seed: 1213
-  device: cuda
 
 models:
   name: GroupVAE
@@ -25,3 +24,6 @@ optimizer:
   name: Adam
   params:
     lr: 0.0001
+
+training:
+  epochs: 100

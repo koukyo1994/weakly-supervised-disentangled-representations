@@ -35,6 +35,16 @@ class GroupVAE(nn.Module):
         reconstructed_1 = self.decoder(z_1)
         return reconstructed_0, reconstructed_1, new_mu_0, new_logvar_0, new_mu_1, new_logvar_1
 
+    def reconstruct(self, x: torch.Tensor, label: torch.Tensor):
+        mu_0, logvar_0, mu_1, logvar_1 = self.encode(x)
+        new_mu_0, new_logvar_0, new_mu_1, new_logvar_1 = self.aggregate(
+            mu_0, logvar_0, mu_1, logvar_1, label)
+        z_0 = self.reparameterize(new_mu_0, new_logvar_0)
+        z_1 = self.reparameterize(new_mu_1, new_logvar_1)
+        reconstructed_0 = self.decoder(z_0)
+        reconstructed_1 = self.decoder(z_1)
+        return reconstructed_0, reconstructed_1
+
     def loss_fn(self,
                 x: torch.Tensor,
                 reconstructed_0: torch.Tensor,
