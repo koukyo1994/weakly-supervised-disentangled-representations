@@ -8,9 +8,11 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from metrics import compute_metrics
 from models import get_model
 from utils import (get_parser, load_config, set_seed, AverageMeter,
-                   save_reconstructed_images, latent_traversal)
+                   save_reconstructed_images, latent_traversal,
+                   export_model, RepresentationExtractor)
 
 os.environ["DISENTANGLEMENT_LIB_DATA"] = "./data"
 
@@ -47,7 +49,7 @@ def train_one_epoch(loader, model, optimizer, device):
             f"kld: {kld_meter.val:.4f} kld (avg) {kld_meter.avg:.4f}")
 
 
-def validate(loader, model, device, save_dir: Path, epoch: int):
+def validate(loader, model, device, save_dir: Path, exp_path: Path, epoch: int, config: dict):
     model.eval()
     original_pairs, labels = next(iter(valid_loader))
     original_pairs = original_pairs.to(device)
@@ -66,7 +68,16 @@ def validate(loader, model, device, save_dir: Path, epoch: int):
                      x=original_pairs[0, 0, :, :, :],
                      device=device,
                      save_path=save_path,
-                     n_imgs=20)
+                     n_imgs=30,
+                     z_min=-2.5,
+                     z_max=2.5)
+    export_model(RepresentationExtractor(model.encoder, "mean"),
+                 exp_path,
+                 input_shape=model.input_shape,
+                 use_script_module=True)
+    compute_metrics(exp_path.parent.parent,
+                    dataset_name=config["dataset"]["name"],
+                    random_seed=config["dataset"]["params"]["seed"])
 
 
 if __name__ == "__main__":
@@ -79,6 +90,15 @@ if __name__ == "__main__":
 
     SAVE_DIR = Path(f"assets/run/{args.config.split('/')[-1].replace('.yml', '')}")
     SAVE_DIR.mkdir(parents=True, exist_ok=True)
+
+    MODEL_OUTPUT_DIR = Path(
+        f"experiment/{args.config.split('/')[-1].replace('.yml', '')}/checkpoints")
+    MODEL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    EXP_DIR = MODEL_OUTPUT_DIR / "representation" / "results"
+    EXP_DIR.mkdir(parents=True, exist_ok=True)
+
+    EXP_PATH = EXP_DIR.parent / "pytorch_model.pt"
 
     set_seed(config["globals"]["seed"])
 
@@ -102,4 +122,10 @@ if __name__ == "__main__":
         print(f"Epoch: {epoch}")
         train_one_epoch(loader, model, optimizer, device)
         if (epoch + 1) % config["logging"]["validate_interval"] == 0:
-            validate(valid_loader, model, device, save_dir=SAVE_DIR, epoch=epoch)
+            validate(valid_loader,
+                     model,
+                     device,
+                     save_dir=SAVE_DIR,
+                     exp_path=EXP_PATH,
+                     epoch=epoch,
+                     config=config)
