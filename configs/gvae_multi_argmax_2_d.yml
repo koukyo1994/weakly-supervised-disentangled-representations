@@ -1,0 +1,32 @@
+globals:
+  seed: 1213
+
+models:
+  name: GroupVAE
+  params:
+    input_shape: [1, 64, 64]
+    n_latents: 10
+    aggregation: argmax
+    label_mode: multi
+
+dataset:
+  name: dsprites_full
+  params:
+    seed: 0
+    iterator_len: 20000
+    k: 2
+    return_index: False
+
+loader:
+  batch_size: 64
+
+optimizer:
+  name: Adam
+  params:
+    lr: 0.0001
+
+training:
+  epochs: 1000
+
+logging:
+  validate_interval: 100
