@@ -29,7 +29,6 @@ import tensorflow as tf
 import gin.tf
 from tensorflow.python.framework.errors_impl import NotFoundError  # noqa
 
-from disentanglement_lib.data.ground_truth import named_data
 from disentanglement_lib.evaluation.metrics import beta_vae  # noqa
 from disentanglement_lib.evaluation.metrics import dci  # noqa
 from disentanglement_lib.evaluation.metrics import downstream_task  # noqa
@@ -43,15 +42,12 @@ from disentanglement_lib.evaluation.metrics import unsupervised_metrics  # noqa
 from disentanglement_lib.utils import results
 
 
-def get_dataset_name():
-    """Reads the name of the dataset from the environment variable `DATASET_NAME`."""
-    return os.getenv("DATASET_NAME", "dsprites_full")
-
-
 def evaluate_with_gin(model_dir,
                       output_dir,
+                      dataset,
                       overwrite=False,
                       gin_config_files=None,
+                      random_seed=None,
                       gin_bindings=None):
     """Evaluate a representation based on the provided gin configuration.
     This function will set the provided gin bindings, call the evaluate()
@@ -69,7 +65,7 @@ def evaluate_with_gin(model_dir,
     if gin_bindings is None:
         gin_bindings = []
     gin.parse_config_files_and_bindings(gin_config_files, gin_bindings)
-    evaluate(model_dir, output_dir, overwrite)
+    evaluate(model_dir, output_dir, dataset, overwrite, random_seed=random_seed)
     gin.clear_config()
 
 
@@ -77,7 +73,7 @@ def evaluate_with_gin(model_dir,
     "evaluation", blacklist=["model_dir", "output_dir", "overwrite"])
 def evaluate(model_dir,
              output_dir,
-             dataset_name,
+             dataset,
              overwrite=False,
              evaluation_fn=gin.REQUIRED,
              random_seed=gin.REQUIRED,
@@ -105,8 +101,6 @@ def evaluate(model_dir,
 
     # Set up time to keep track of elapsed time in results.
     experiment_timer = time.time()
-
-    dataset = named_data.get_named_ground_truth_data(dataset_name)
 
     if os.path.exists(os.path.join(model_dir, 'pytorch_model.pt')):
         # Path to Pytorch JIT Module of previously trained representation.

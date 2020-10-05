@@ -7,7 +7,7 @@ from disentanglement_lib.config.unsupervised_study_v1 import sweep as unsupervis
 
 
 def compute_metrics(exp_path,
-                    dataset_name,
+                    dataset,
                     random_seed):
     overwrite = True
     _study = unsupervised_study_v1.UnsupervisedStudyV1()
@@ -33,7 +33,7 @@ def compute_metrics(exp_path,
         evaluate_with_gin(
             representation_path,
             result_path,
-            dataset_name,
+            dataset,
             overwrite,
             [gin_eval_config],
             random_seed,

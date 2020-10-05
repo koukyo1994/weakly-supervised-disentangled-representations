@@ -49,7 +49,7 @@ def train_one_epoch(loader, model, optimizer, device):
             f"kld: {kld_meter.val:.4f} kld (avg) {kld_meter.avg:.4f}")
 
 
-def validate(loader, model, device, save_dir: Path, exp_path: Path, epoch: int, config: dict):
+def validate(loader, dataset, model, device, save_dir: Path, exp_path: Path, epoch: int, config: dict):
     model.eval()
     original_pairs, labels = next(iter(valid_loader))
     original_pairs = original_pairs.to(device)
@@ -76,7 +76,7 @@ def validate(loader, model, device, save_dir: Path, exp_path: Path, epoch: int, 
                  input_shape=model.input_shape,
                  use_script_module=True)
     compute_metrics(exp_path.parent.parent,
-                    dataset_name=config["dataset"]["name"],
+                    dataset=dataset,
                     random_seed=config["dataset"]["params"]["seed"])
 
 
@@ -123,6 +123,7 @@ if __name__ == "__main__":
         train_one_epoch(loader, model, optimizer, device)
         if (epoch + 1) % config["logging"]["validate_interval"] == 0:
             validate(valid_loader,
+                     dataset,
                      model,
                      device,
                      save_dir=SAVE_DIR,
