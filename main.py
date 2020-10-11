@@ -77,7 +77,8 @@ def validate(loader, dataset, model, device, save_dir: Path, exp_path: Path, epo
                  use_script_module=True)
     compute_metrics(exp_path.parent.parent,
                     dataset=dataset,
-                    random_seed=config["dataset"]["params"]["seed"])
+                    random_seed=config["dataset"]["params"]["seed"],
+                    epoch=epoch)
 
 
 if __name__ == "__main__":

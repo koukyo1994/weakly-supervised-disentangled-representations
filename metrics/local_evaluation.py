@@ -1,6 +1,8 @@
 import json
 import os
 
+from pathlib import Path
+
 from .evaluate import evaluate_with_gin
 
 from disentanglement_lib.config.unsupervised_study_v1 import sweep as unsupervised_study_v1
@@ -8,7 +10,8 @@ from disentanglement_lib.config.unsupervised_study_v1 import sweep as unsupervis
 
 def compute_metrics(exp_path,
                     dataset,
-                    random_seed):
+                    random_seed,
+                    epoch=0):
     overwrite = True
     _study = unsupervised_study_v1.UnsupervisedStudyV1()
     evaluation_configs = sorted(_study.get_eval_config_files())
@@ -75,6 +78,16 @@ def compute_metrics(exp_path,
         else:
             raise Exception("Unknown metric name : {}".format(_metric_name))
 
-    with open(f'{exp_path}/metric_results.json', 'w') as json_file:
-        json.dump(final_scores, json_file)
+    final_scores["epochs"] = epoch
+    metric_result_path = Path(f"{exp_path}/metric_results.json")
+    if metric_result_path.exists():
+        with open(metric_result_path, "r") as f:
+            metric_results = json.load(f)
+        metric_results.append(final_scores)
+        with open(metric_result_path, "w") as wf:
+            json.dump(metric_results, wf)
+    else:
+        metric_results = [final_scores]
+        with open(f'{exp_path}/metric_results.json', 'w') as json_file:
+            json.dump(metric_results, json_file)
     print("Final Scores : ", final_scores)
