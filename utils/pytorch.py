@@ -41,9 +41,9 @@ def export_model(model, path, input_shape=(1, 3, 64, 64), use_script_module=True
             traced_model = trace(model, torch.zeros(*input_shape))
         else:
             traced_model = model
-        torch.jit.save(traced_model, path)
+        torch.jit.save(traced_model, str(path))
     else:
-        torch.save(model, path)  # saves model as a nn.Module
+        torch.save(model, str(path))  # saves model as a nn.Module
     return path
 
 
@@ -62,10 +62,10 @@ def import_model(path):
     """
 
     try:
-        return torch.jit.load(path)
+        return torch.jit.load(str(path))
     except RuntimeError:
         try:
-            return torch.load(path)  # loads model as a nn.Module
+            return torch.load(str(path))  # loads model as a nn.Module
         except Exception as e:
             raise IOError("Could not load file. Please save as torch.jit.ScriptModule instead.") from e
 

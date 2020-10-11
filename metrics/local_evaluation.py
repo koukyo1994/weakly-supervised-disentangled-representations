@@ -26,7 +26,7 @@ def compute_metrics(exp_path,
             continue
         print(f"Evaluationg Metric: {metric_name}")
         result_path = os.path.join(exp_path, "metrics", metric_name)
-        representation_path = os.path.join(exp_path, "representations")
+        representation_path = os.path.join(exp_path, "representation")
         eval_bindings = [
             f"evaluation.name = '{metric_name}'"
         ]

@@ -17,6 +17,7 @@ class GroupVAE(nn.Module):
             assert label_mode in {"single", "multi"}, \
                 "`label_mode` must be either 'single' or 'multi'"
 
+        self.input_shape = input_shape
         self.beta = beta
         self.n_latents = n_latents
         self.aggregation = aggregation
