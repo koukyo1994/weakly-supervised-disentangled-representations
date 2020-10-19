@@ -42,3 +42,19 @@ class WeaklySupervisedDataset(torchdata.Dataset):
             return observation_pair, factor_pair
         else:
             return observation_pair, idx
+
+
+class UnsupervisedDataset(torchdata.Dataset):
+    def __init__(self, dataset: GroundTruthData, seed=0, iterator_len=20000):
+        self.iterator_len = iterator_len
+        self.dataset = dataset
+        self.random_state = np.random.RandomState(seed)
+
+    def __len__(self):
+        return self.iterator_len
+
+    def __getitem__(self, index: int):
+        factors, observations = self.dataset.sample(1, self.random_state)
+        observations = np.moveaxis(observations, 3, 1)
+
+        return observations[0], factors[0]

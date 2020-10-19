@@ -11,7 +11,8 @@ from tqdm import tqdm
 from metrics import compute_metrics
 from models import get_model
 from utils import (get_parser, load_config, set_seed, AverageMeter,
-                   save_reconstructed_images, latent_traversal,
+                   save_reconstructed_images,
+                   save_paired_reconstructed_images, latent_traversal,
                    export_model, RepresentationExtractor)
 
 os.environ["DISENTANGLEMENT_LIB_DATA"] = "./data"
@@ -49,23 +50,41 @@ def train_one_epoch(loader, model, optimizer, device):
             f"kld: {kld_meter.val:.4f} kld (avg) {kld_meter.avg:.4f}")
 
 
-def validate(loader, dataset, model, device, save_dir: Path, exp_path: Path, epoch: int, config: dict):
+def validate(loader,
+             dataset,
+             model,
+             device,
+             save_dir: Path,
+             exp_path: Path,
+             epoch: int,
+             config: dict,
+             task_type: str):
     model.eval()
     original_pairs, labels = next(iter(valid_loader))
     original_pairs = original_pairs.to(device)
     labels = labels.to(device)
-    with torch.no_grad():
-        reconstructed_0, reconstructed_1 = model.reconstruct(original_pairs, labels)
 
     save_path = save_dir / f"reconstruction_epoch_{epoch}.png"
-    save_reconstructed_images(
-        save_path,
-        original_pairs.cpu(),
-        reconstructed_0.detach().cpu(),
-        reconstructed_1.detach().cpu())
+
+    with torch.no_grad():
+        if task_type == "weak":
+            reconstructed_0, reconstructed_1 = model.reconstruct(original_pairs, labels)
+
+            save_paired_reconstructed_images(
+                save_path,
+                original_pairs.cpu(),
+                reconstructed_0.detach().cpu(),
+                reconstructed_1.detach().cpu())
+
+        else:
+            reconstructed = model.reconstruct(original_pairs)
+            save_reconstructed_images(
+                save_path,
+                original_pairs.cpu(),
+                reconstructed.cpu())
     save_path = save_dir / f"latent_traversal_epoch_{epoch}.gif"
     latent_traversal(model,
-                     x=original_pairs[0, 0, :, :, :],
+                     x=original_pairs[0, 0, :, :, :] if task_type == "weak" else original_pairs[0, :, :, :],
                      device=device,
                      save_path=save_path,
                      n_imgs=30,
@@ -84,7 +103,7 @@ def validate(loader, dataset, model, device, save_dir: Path, exp_path: Path, epo
 if __name__ == "__main__":
     from disentanglement_lib.data.ground_truth.named_data import get_named_ground_truth_data
 
-    from dataset.pytorch import WeaklySupervisedDataset
+    from dataset.pytorch import WeaklySupervisedDataset, UnsupervisedDataset
 
     args = get_parser().parse_args()
     config = load_config(args.config)
@@ -108,9 +127,14 @@ if __name__ == "__main__":
     dataset = get_named_ground_truth_data(config["dataset"]["name"])
     task_type = config["dataset"]["type"]
 
-    torch_dataset = WeaklySupervisedDataset(
-        dataset,
-        **config["dataset"]["params"])
+    if task_type == "weak":
+        torch_dataset = WeaklySupervisedDataset(
+            dataset,
+            **config["dataset"]["params"])
+    else:
+        torch_dataset = UnsupervisedDataset(  # type: ignore
+            dataset,
+            **config["dataset"]["params"])
 
     loader = DataLoader(torch_dataset, batch_size=config["loader"]["batch_size"])
     valid_loader = DataLoader(torch_dataset, batch_size=8)
@@ -132,4 +156,5 @@ if __name__ == "__main__":
                      save_dir=SAVE_DIR,
                      exp_path=EXP_PATH,
                      epoch=epoch,
-                     config=config)
+                     config=config,
+                     task_type=task_type)

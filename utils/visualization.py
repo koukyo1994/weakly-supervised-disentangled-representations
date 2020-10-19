@@ -10,9 +10,49 @@ from typing import Union
 
 
 def save_reconstructed_images(save_path: Path,
-                              original_pairs: torch.Tensor,
-                              reconstructed_0: torch.Tensor,
-                              reconstructed_1: torch.Tensor):
+                              original_images: torch.Tensor,
+                              reconstructed: torch.Tensor):
+    B, C, H, W = reconstructed.size()
+    original_images_np = np.moveaxis(original_images.numpy(), 1, 3)
+    reconstructed_np = np.moveaxis(reconstructed.numpy(), 1, 3)
+
+    fig, axes = plt.subplots(ncols=2, nrows=B, figsize=(4, 2 * B))
+
+    col_titles = [
+        "Original", "Reconstructed"
+    ]
+    row_titles = [f"Image {i}" for i in range(B)]
+
+    for ax, col in zip(axes[0], col_titles):
+        ax.set_title(col)
+
+    for ax, row in zip(axes[:, 0], row_titles):
+        ax.set_ylabel(row, rotation=90, size="large")
+
+    for i in range(B):
+        orig = original_images_np[i]
+        recon = reconstructed_np[i]
+
+        if orig.shape[2] == 1:
+            orig = orig[:, :, 0]
+            recon = recon[:, :, 0]
+
+        for j, img in zip(range(2), [orig, recon]):
+            axes[i, j].imshow(img)
+            axes[i, j].tick_params(
+                labelbottom=False,
+                bottom=False,
+                labelleft=False,
+                left=False)
+
+    fig.tight_layout()
+    plt.savefig(save_path)
+
+
+def save_paired_reconstructed_images(save_path: Path,
+                                     original_pairs: torch.Tensor,
+                                     reconstructed_0: torch.Tensor,
+                                     reconstructed_1: torch.Tensor):
     assert reconstructed_0.size() == reconstructed_1.size(), \
         "Both images should be exactly the same size"
     original_0 = original_pairs[:, 0, :, :, :]

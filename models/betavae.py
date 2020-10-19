@@ -24,7 +24,7 @@ class BetaVAE(nn.Module):
         else:
             return mu
 
-    def forward(self, x, sigmoid=True):
+    def forward(self, x, *args, **kwargs):
         mu, logvar = self.encoder(x)
         z = self.reparameterize(mu, logvar)
         reconstructed = self.decoder(z)
