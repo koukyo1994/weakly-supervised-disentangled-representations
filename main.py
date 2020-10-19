@@ -3,6 +3,8 @@ import os
 import torch
 import torch.optim as optim
 
+import utils
+
 from pathlib import Path
 
 from torch.utils.data import DataLoader
@@ -10,18 +12,14 @@ from tqdm import tqdm
 
 from metrics import compute_metrics
 from models import get_model
-from utils import (get_parser, load_config, set_seed, AverageMeter,
-                   save_reconstructed_images,
-                   save_paired_reconstructed_images, latent_traversal,
-                   export_model, RepresentationExtractor)
 
 os.environ["DISENTANGLEMENT_LIB_DATA"] = "./data"
 
 
 def train_one_epoch(loader, model, optimizer, device):
-    loss_meter = AverageMeter()
-    recons_error_meter = AverageMeter()
-    kld_meter = AverageMeter()
+    loss_meter = utils.AverageMeter()
+    recons_error_meter = utils.AverageMeter()
+    kld_meter = utils.AverageMeter()
 
     model.train()
     tqdm_bar = tqdm(loader)
@@ -44,7 +42,7 @@ def train_one_epoch(loader, model, optimizer, device):
             n=observation.size(0))
         kld_meter.update(kld.item(), n=observation.size(0))
         tqdm_bar.set_description(
-            f"Step: [{step}/{len(loader)}]"
+            f"Step: [{step + 1}/{len(loader)}]"
             f"loss: {loss_meter.val:.4f} loss (avg) {loss_meter.avg:.4f} " +
             f"recons_error: {recons_error_meter.val:.4f} recons_error (avg) {recons_error_meter.avg:.4f} " +
             f"kld: {kld_meter.val:.4f} kld (avg) {kld_meter.avg:.4f}")
@@ -70,7 +68,7 @@ def validate(loader,
         if task_type == "weak":
             reconstructed_0, reconstructed_1 = model.reconstruct(original_pairs, labels)
 
-            save_paired_reconstructed_images(
+            utils.save_paired_reconstructed_images(
                 save_path,
                 original_pairs.cpu(),
                 reconstructed_0.detach().cpu(),
@@ -78,22 +76,25 @@ def validate(loader,
 
         else:
             reconstructed = model.reconstruct(original_pairs)
-            save_reconstructed_images(
+            utils.save_reconstructed_images(
                 save_path,
                 original_pairs.cpu(),
                 reconstructed.cpu())
     save_path = save_dir / f"latent_traversal_epoch_{epoch}.gif"
-    latent_traversal(model,
-                     x=original_pairs[0, 0, :, :, :] if task_type == "weak" else original_pairs[0, :, :, :],
-                     device=device,
-                     save_path=save_path,
-                     n_imgs=30,
-                     z_min=-2.5,
-                     z_max=2.5)
-    export_model(RepresentationExtractor(model.encoder, "mean"),
-                 exp_path,
-                 input_shape=model.input_shape,
-                 use_script_module=True)
+    utils.latent_traversal(model,
+                           x=original_pairs[0, 0, :, :, :] if task_type == "weak" else original_pairs[0, :, :, :],
+                           device=device,
+                           save_path=save_path,
+                           n_imgs=30,
+                           z_min=-2.5,
+                           z_max=2.5)
+
+    save_path = save_dir / f"latent_histogram_epoch_{epoch}.png"
+    utils.latent_histogram(model, loader, device, save_path, task_type)
+    utils.export_model(utils.RepresentationExtractor(model.encoder, "mean"),
+                       exp_path,
+                       input_shape=model.input_shape,
+                       use_script_module=True)
     compute_metrics(exp_path.parent.parent,
                     dataset=dataset,
                     random_seed=config["dataset"]["params"]["seed"],
@@ -105,8 +106,8 @@ if __name__ == "__main__":
 
     from dataset.pytorch import WeaklySupervisedDataset, UnsupervisedDataset
 
-    args = get_parser().parse_args()
-    config = load_config(args.config)
+    args = utils.get_parser().parse_args()
+    config = utils.load_config(args.config)
 
     SAVE_DIR = Path(f"assets/run/{args.config.split('/')[-1].replace('.yml', '')}")
     SAVE_DIR.mkdir(parents=True, exist_ok=True)
@@ -120,7 +121,7 @@ if __name__ == "__main__":
 
     EXP_PATH = EXP_DIR.parent / "pytorch_model.pt"
 
-    set_seed(config["globals"]["seed"])
+    utils.set_seed(config["globals"]["seed"])
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -146,7 +147,7 @@ if __name__ == "__main__":
 
     for epoch in range(config["training"]["epochs"]):
         print("#" * 100)
-        print(f"Epoch: {epoch}")
+        print(f"Epoch: {epoch + 1}")
         train_one_epoch(loader, model, optimizer, device)
         if (epoch + 1) % config["logging"]["validate_interval"] == 0:
             validate(valid_loader,
@@ -155,6 +156,6 @@ if __name__ == "__main__":
                      device,
                      save_dir=SAVE_DIR,
                      exp_path=EXP_PATH,
-                     epoch=epoch,
+                     epoch=epoch + 1,
                      config=config,
                      task_type=task_type)

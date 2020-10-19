@@ -210,3 +210,35 @@ def latent_traversal(model,
 
     for i in range(n_imgs):
         os.remove(save_path.resolve().parent / (str(i) + ".png"))
+
+
+def latent_histogram(model,
+                     loader,
+                     device: torch.device,
+                     save_path: Union[str, Path],
+                     task_type: str = "weak"):
+    model.eval()
+    representations = []
+    for pairs, _ in loader:
+        if task_type == "weak":
+            image = pairs[:, 0, :, :, :].to(device)
+        else:
+            image = pairs.to(device)
+        with torch.no_grad():
+            mu, logvar = model.encoder(image)
+            latents = model.reparameterize(mu, logvar)
+        representations.append(latents.detach().cpu().numpy())
+
+    representations_np = np.concatenate(representations, axis=0)
+
+    n_latents = representations_np.shape[1]
+    fig, axes = plt.subplots(nrows=1, ncols=n_latents, figsize=(n_latents * 2, 2))
+
+    orders = ["st", "nd"] + ["th"] * 8
+    for i in range(n_latents):
+        axes[i].set_title(f"{i+1} {orders[i]} element")
+        axes[i].set_xlabel(f"z{i+1}")
+        axes[i].set_ylabel("freq")
+        axes[i].hist(representations_np[:, i], bins=30, density=True, histtype="bar")
+    plt.tight_layout()
+    plt.savefig(save_path)
