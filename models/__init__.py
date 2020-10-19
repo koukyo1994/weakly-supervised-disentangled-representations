@@ -1,8 +1,10 @@
+from .betavae import BetaVAE
 from .gvae import GroupVAE
 
 
 MODELS = {
-    "GroupVAE": GroupVAE
+    "GroupVAE": GroupVAE,
+    "BetaVAE": BetaVAE
 }
 
 

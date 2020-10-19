@@ -15,7 +15,7 @@ class BetaVAE(nn.Module):
         self.n_latents = n_latents
 
         self.encoder = Encoder(input_shape=input_shape, n_latents=n_latents)
-        self.decoder = Decoder(input_shape=input_shape, n_latents=n_latents)
+        self.decoder = Decoder(output_shape=input_shape, n_latents=n_latents)
 
     def reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor):
         if self.training:
