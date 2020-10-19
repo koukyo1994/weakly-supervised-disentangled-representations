@@ -1,10 +1,12 @@
 from .betavae import BetaVAE
+from .betacvae import BetaCVAE
 from .gvae import GroupVAE
 
 
 MODELS = {
     "GroupVAE": GroupVAE,
-    "BetaVAE": BetaVAE
+    "BetaVAE": BetaVAE,
+    "BetaCVAE": BetaCVAE
 }
 
 

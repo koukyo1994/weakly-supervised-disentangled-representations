@@ -1,0 +1,32 @@
+globals:
+  seed: 1213
+
+models:
+  name: BetaVAE
+  params:
+    input_shape: [1, 64, 64]
+    n_latents: 10
+    gamma: 1000
+    C_max: 100
+    anneal_steps: 100000
+
+dataset:
+  name: dsprites_full
+  type: unsupervised
+  params:
+    seed: 0
+    iterator_len: 20000
+
+loader:
+  batch_size: 64
+
+optimizer:
+  name: Adam
+  params:
+    lr: 0.0001
+
+training:
+  epochs: 1000
+
+logging:
+  validate_interval: 100
