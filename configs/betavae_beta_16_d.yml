@@ -2,17 +2,15 @@ globals:
   seed: 1213
 
 models:
-  name: GroupVAE
+  name: BetaVAE
   params:
     input_shape: [1, 64, 64]
     n_latents: 10
-    beta: 1.0
-    aggregation: argmax
-    label_mode: multi
+    beta: 16.0
 
 dataset:
   name: dsprites_full
-  type: weak
+  type: unsupervised
   params:
     seed: 0
     iterator_len: 20000

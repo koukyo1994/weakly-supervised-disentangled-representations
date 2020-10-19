@@ -106,6 +106,8 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     dataset = get_named_ground_truth_data(config["dataset"]["name"])
+    task_type = config["dataset"]["type"]
+
     torch_dataset = WeaklySupervisedDataset(
         dataset,
         **config["dataset"]["params"])

@@ -11,6 +11,7 @@ models:
 
 dataset:
   name: dsprites_full
+  type: weak
   params:
     seed: 0
     iterator_len: 20000
