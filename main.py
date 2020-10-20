@@ -88,6 +88,14 @@ def validate(loader,
                            n_imgs=30,
                            z_min=-2.5,
                            z_max=2.5)
+    save_path = save_dir / f"latent_traversal_epoch_{epoch}.png"
+    utils.latent_traversal_static(model,
+                                  x=original_pairs[0, 0, :, :, :] if task_type == "weak" else original_pairs[0, :, :, :],
+                                  device=device,
+                                  save_path=save_path,
+                                  n_imgs=10,
+                                  z_min=-2.5,
+                                  z_max=2.5)
 
     save_path = save_dir / f"latent_histogram_epoch_{epoch}.png"
     utils.latent_histogram(model, loader, device, save_path, task_type)
