@@ -1,5 +1,8 @@
+import codecs
 import json
 import os
+
+import numpy as np
 
 from pathlib import Path
 
@@ -20,7 +23,8 @@ def compute_metrics(exp_path,
         "factor_vae_metric",
         "modularity_explicitness",
         "sap_score",
-        "mig"
+        "mig",
+        "dci"
     ]
 
     for gin_eval_config in evaluation_configs:
@@ -78,16 +82,32 @@ def compute_metrics(exp_path,
         else:
             raise Exception("Unknown metric name : {}".format(_metric_name))
 
-    final_scores["epochs"] = epoch
-    metric_result_path = Path(f"{exp_path}/metric_results.json")
+    metric_result_dir = exp_path.parent
+    metric_result_path = Path(f"{metric_result_dir}/metric_results.json")
     if metric_result_path.exists():
         with open(metric_result_path, "r") as f:
             metric_results = json.load(f)
-        metric_results.append(final_scores)
-        with open(metric_result_path, "w") as wf:
-            json.dump(metric_results, wf)
+        metric_results[f"epoch{epoch}"] = final_scores
+        save_json(metric_results, metric_result_path)
     else:
-        metric_results = [final_scores]
-        with open(f'{exp_path}/metric_results.json', 'w') as json_file:
-            json.dump(metric_results, json_file)
+        metric_results = {f"epoch{epoch}": final_scores}
+        save_json(metric_results, metric_result_path)
     print("Final Scores : ", final_scores)
+
+
+class JsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super(JsonEncoder, self).default(obj)
+
+
+def save_json(config: dict, save_path: Path):
+    f = codecs.open(str(save_path), mode="w", encoding="utf-8")
+    json.dump(config, f, indent=4, cls=JsonEncoder, ensure_ascii=False)
+    f.close()
