@@ -2,7 +2,7 @@ globals:
   seed: 1213
 
 models:
-  name: BetaVAE
+  name: BetaCVAE
   params:
     input_shape: [1, 64, 64]
     n_latents: 10
