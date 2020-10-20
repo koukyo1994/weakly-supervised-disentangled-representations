@@ -5,7 +5,7 @@
   "evaluation_config.evaluation.name": "'mig'",
   "evaluation_config.mig.batch_size": "16",
   "evaluation_config.mig.num_train": "10000",
-  "evaluation_results.discrete_mig": 0.5893291982388863,
-  "evaluation_results.elapsed_time": 0.971027135848999,
-  "evaluation_results.uuid": "41dbb5a0-6872-436e-9bfe-6fea446e9ee6"
+  "evaluation_results.discrete_mig": 0.611489177846362,
+  "evaluation_results.elapsed_time": 0.9087173938751221,
+  "evaluation_results.uuid": "c4c69cf2-6a7c-491f-aa24-08ae71633032"
 }

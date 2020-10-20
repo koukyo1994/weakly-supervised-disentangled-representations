@@ -191,10 +191,10 @@ def latent_traversal_static(model,
         images.append(np.concatenate([x.cpu().numpy(), reconstructed]))
 
     fig, axes = plt.subplots(nrows=len(images), ncols=latent_dims + 2,
-                             figsize=(latent_dims + 2, len(images)), dpi=100)
+                             figsize=((latent_dims + 2) * 2, len(images) * 2), dpi=100)
     for i, imgs in enumerate(images):
         if i == 0:
-            titles = ["original", "reconstructed"] + [f"latent_dim{i}" for i in range(latent_dims)]
+            titles = ["original", "reconstructed"] + [f"z{i}" for i in range(latent_dims)]
             for j, ai in enumerate(axes[i]):
                 ai.set_title(titles[j])
 
@@ -207,7 +207,7 @@ def latent_traversal_static(model,
             ai.tick_params(labelbottom=False, bottom=False, labelleft=False, left=False)
             ai.imshow(xi)
             if j == 0:
-                ai.set_ylabel(f"z{j}={z_values[i]:.3f}", rotation=90, size="large")
+                ai.set_ylabel(f"z{j}={z_values[i]:.2f}", rotation=90, size="large")
 
     fig.savefig(save_path, bbox_inches="tight", pad_inches=0)
     plt.close()
@@ -348,7 +348,7 @@ def latent_histogram(model,
     n_latents = representations_np.shape[1]
     fig, axes = plt.subplots(nrows=1, ncols=n_latents, figsize=(n_latents * 2, 2))
 
-    orders = ["st", "nd"] + ["th"] * 8
+    orders = ["st", "nd", "rd"] + ["th"] * 7
     for i in range(n_latents):
         axes[i].set_title(f"{i+1} {orders[i]} element")
         axes[i].set_xlabel(f"z{i+1}")

@@ -1,7 +1,7 @@
 {
-  "train_accuracy": 0.4185,
-  "eval_accuracy": 0.4146,
+  "train_accuracy": 0.3985,
+  "eval_accuracy": 0.392,
   "num_active_dims": 10,
-  "elapsed_time": 20.90761661529541,
-  "uuid": "b59d812d-0065-4e64-8979-d75d5bb9315a"
+  "elapsed_time": 19.74060034751892,
+  "uuid": "dfb5d204-e69d-4cb8-bb82-86a5ceef115c"
 }
