@@ -6,9 +6,9 @@
   "evaluation_config.factor_vae_score.num_train": "10000",
   "evaluation_config.factor_vae_score.num_variance_estimate": "10000",
   "evaluation_config.prune_dims.threshold": "0.05",
-  "evaluation_results.train_accuracy": 0.7031,
-  "evaluation_results.eval_accuracy": 0.6978,
+  "evaluation_results.train_accuracy": 0.7587,
+  "evaluation_results.eval_accuracy": 0.7568,
   "evaluation_results.num_active_dims": 10,
-  "evaluation_results.elapsed_time": 21.76913070678711,
-  "evaluation_results.uuid": "f55f58ec-5c5b-48a3-ac26-da6c7792dee8"
+  "evaluation_results.elapsed_time": 20.080523014068604,
+  "evaluation_results.uuid": "c916304e-193d-4bf6-bd3a-204f7ec9d804"
 }
