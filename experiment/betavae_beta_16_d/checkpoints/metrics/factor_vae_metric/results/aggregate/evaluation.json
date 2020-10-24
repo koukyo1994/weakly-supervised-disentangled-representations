@@ -9,6 +9,6 @@
   "evaluation_results.train_accuracy": 0.3871,
   "evaluation_results.eval_accuracy": 0.3886,
   "evaluation_results.num_active_dims": 10,
-  "evaluation_results.elapsed_time": 19.821216583251953,
-  "evaluation_results.uuid": "4db2693a-436b-4429-bde1-a6dc7488dfe2"
+  "evaluation_results.elapsed_time": 19.395493745803833,
+  "evaluation_results.uuid": "7c9ffb1b-673f-4c91-912f-14cc9b72a9fb"
 }

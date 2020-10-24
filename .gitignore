@@ -136,3 +136,4 @@ data/*
 !data/Makefile
 *.pth
 *.pt
+events.out.tfevents.*

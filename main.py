@@ -125,7 +125,7 @@ def validate(loader,
                     dataset=dataset,
                     random_seed=config["dataset"]["params"]["seed"],
                     epoch=epoch)
-    with open(exp_path.parent / "metric_results.json", "r") as f:
+    with open(exp_path.parent.parent.parent / "metric_results.json", "r") as f:
         metric_results = json.load(f)
     epoch_result = metric_results[f"epoch{epoch}"]
     for key in epoch_result:
