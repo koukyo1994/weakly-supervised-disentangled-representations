@@ -8,10 +8,14 @@ from pathlib import Path
 from PIL import Image
 from typing import Union
 
+from torch.utils.tensorboard import SummaryWriter
+
 
 def save_reconstructed_images(save_path: Path,
                               original_images: torch.Tensor,
-                              reconstructed: torch.Tensor):
+                              reconstructed: torch.Tensor,
+                              writer: SummaryWriter,
+                              epoch: int):
     B, C, H, W = reconstructed.size()
     original_images_np = np.moveaxis(original_images.numpy(), 1, 3)
     reconstructed_np = np.moveaxis(reconstructed.numpy(), 1, 3)
@@ -46,13 +50,17 @@ def save_reconstructed_images(save_path: Path,
                 left=False)
 
     fig.tight_layout()
+    writer.add_figure(tag="reconstructed", figure=fig, global_step=epoch)
     plt.savefig(save_path)
+    plt.close()
 
 
 def save_paired_reconstructed_images(save_path: Path,
                                      original_pairs: torch.Tensor,
                                      reconstructed_0: torch.Tensor,
-                                     reconstructed_1: torch.Tensor):
+                                     reconstructed_1: torch.Tensor,
+                                     writer: SummaryWriter,
+                                     epoch: int):
     assert reconstructed_0.size() == reconstructed_1.size(), \
         "Both images should be exactly the same size"
     original_0 = original_pairs[:, 0, :, :, :]
@@ -96,7 +104,9 @@ def save_paired_reconstructed_images(save_path: Path,
             axes[i, j].tick_params(labelleft=False, left=False)
 
     fig.tight_layout()
+    writer.add_figure(tag="reconstructed", figure=fig, global_step=epoch)
     plt.savefig(save_path)
+    plt.close()
 
 
 def latent_traversal_static(model,
@@ -104,8 +114,10 @@ def latent_traversal_static(model,
                             device: torch.device,
                             save_path: Union[str, Path],
                             n_imgs: int,
-                            z_min=-1.5,
-                            z_max=1.5):
+                            z_min: float,
+                            z_max: float,
+                            writer: SummaryWriter,
+                            epoch: int):
     """
     Make latent traversal png image and save it at the specified path
     This is not an animated version - for animated version please check `latent_traversal`.
@@ -208,7 +220,7 @@ def latent_traversal_static(model,
             ai.imshow(xi)
             if j == 0:
                 ai.set_ylabel(f"z{j}={z_values[i]:.2f}", rotation=90, size="large")
-
+    writer.add_figure(tag="traversal", figure=fig, global_step=epoch)
     fig.savefig(save_path, bbox_inches="tight", pad_inches=0)
     plt.close()
 
@@ -330,7 +342,9 @@ def latent_histogram(model,
                      loader,
                      device: torch.device,
                      save_path: Union[str, Path],
-                     task_type: str = "weak"):
+                     task_type: str,
+                     writer: SummaryWriter,
+                     epoch: int):
     model.eval()
     representations = []
     for pairs, _ in loader:
@@ -355,4 +369,6 @@ def latent_histogram(model,
         axes[i].set_ylabel("freq")
         axes[i].hist(representations_np[:, i], bins=30, density=True, histtype="bar")
     plt.tight_layout()
+    writer.add_figure(tag="histogram", figure=fig, global_step=epoch)
     plt.savefig(save_path)
+    plt.close()

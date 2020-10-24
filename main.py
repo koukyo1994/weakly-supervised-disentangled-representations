@@ -1,3 +1,4 @@
+import json
 import os
 
 import torch
@@ -8,6 +9,7 @@ import utils
 from pathlib import Path
 
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from metrics import compute_metrics
@@ -16,7 +18,7 @@ from models import get_model
 os.environ["DISENTANGLEMENT_LIB_DATA"] = "./data"
 
 
-def train_one_epoch(loader, model, optimizer, device):
+def train_one_epoch(loader, model, optimizer, device, writer: SummaryWriter, epoch: int):
     loss_meter = utils.AverageMeter()
     recons_error_meter = utils.AverageMeter()
     kld_meter = utils.AverageMeter()
@@ -47,6 +49,15 @@ def train_one_epoch(loader, model, optimizer, device):
             f"recons_error: {recons_error_meter.val:.4f} recons_error (avg) {recons_error_meter.avg:.4f} " +
             f"kld: {kld_meter.val:.4f} kld (avg) {kld_meter.avg:.4f}")
 
+        global_step = epoch * len(loader) + step
+        writer.add_scalar(tag="loss/batch", scalar_value=loss_meter.val, global_step=global_step)
+        writer.add_scalar(tag="recons/batch", scalar_value=recons_error_meter.val, global_step=global_step)
+        writer.add_scalar(tag="kld/batch", scalar_value=kld_meter.val, global_step=global_step)
+
+    writer.add_scalar(tag="loss/epoch", scalar_value=loss_meter.avg, global_step=epoch)
+    writer.add_scalar(tag="recons/epoch", scalar_value=recons_error_meter.avg, global_step=epoch)
+    writer.add_scalar(tag="kld/epoch", scalar_value=kld_meter.avg, global_step=epoch)
+
 
 def validate(loader,
              dataset,
@@ -56,7 +67,8 @@ def validate(loader,
              exp_path: Path,
              epoch: int,
              config: dict,
-             task_type: str):
+             task_type: str,
+             writer: SummaryWriter):
     model.eval()
     original_pairs, labels = next(iter(valid_loader))
     original_pairs = original_pairs.to(device)
@@ -72,14 +84,18 @@ def validate(loader,
                 save_path,
                 original_pairs.cpu(),
                 reconstructed_0.detach().cpu(),
-                reconstructed_1.detach().cpu())
+                reconstructed_1.detach().cpu(),
+                writer=writer,
+                epoch=epoch)
 
         else:
             reconstructed = model.reconstruct(original_pairs)
             utils.save_reconstructed_images(
                 save_path,
                 original_pairs.cpu(),
-                reconstructed.cpu())
+                reconstructed.cpu(),
+                writer=writer,
+                epoch=epoch)
     save_path = save_dir / f"latent_traversal_epoch_{epoch}.gif"
     utils.latent_traversal(model,
                            x=original_pairs[0, 0, :, :, :] if task_type == "weak" else original_pairs[0, :, :, :],
@@ -95,10 +111,12 @@ def validate(loader,
                                   save_path=save_path,
                                   n_imgs=10,
                                   z_min=-2.5,
-                                  z_max=2.5)
+                                  z_max=2.5,
+                                  writer=writer,
+                                  epoch=epoch)
 
     save_path = save_dir / f"latent_histogram_epoch_{epoch}.png"
-    utils.latent_histogram(model, loader, device, save_path, task_type)
+    utils.latent_histogram(model, loader, device, save_path, task_type, writer=writer, epoch=epoch)
     utils.export_model(utils.RepresentationExtractor(model.encoder, "mean"),
                        exp_path,
                        input_shape=model.input_shape,
@@ -107,6 +125,11 @@ def validate(loader,
                     dataset=dataset,
                     random_seed=config["dataset"]["params"]["seed"],
                     epoch=epoch)
+    with open(exp_path.parent / "metric_results.json", "r") as f:
+        metric_results = json.load(f)
+    epoch_result = metric_results[f"epoch{epoch}"]
+    for key in epoch_result:
+        writer.add_scalar(tag=key, scalar_value=epoch_result[key], global_step=epoch)
 
 
 if __name__ == "__main__":
@@ -126,6 +149,9 @@ if __name__ == "__main__":
 
     EXP_DIR = MODEL_OUTPUT_DIR / "representation" / "results"
     EXP_DIR.mkdir(parents=True, exist_ok=True)
+
+    RESULT_DIR = MODEL_OUTPUT_DIR.parent
+    writer = SummaryWriter(log_dir=RESULT_DIR)
 
     EXP_PATH = EXP_DIR.parent / "pytorch_model.pt"
 
@@ -156,7 +182,7 @@ if __name__ == "__main__":
     for epoch in range(config["training"]["epochs"]):
         print("#" * 100)
         print(f"Epoch: {epoch + 1}")
-        train_one_epoch(loader, model, optimizer, device)
+        train_one_epoch(loader, model, optimizer, device, writer, epoch)
         if (epoch + 1) % config["logging"]["validate_interval"] == 0:
             validate(valid_loader,
                      dataset,
@@ -166,4 +192,7 @@ if __name__ == "__main__":
                      exp_path=EXP_PATH,
                      epoch=epoch + 1,
                      config=config,
-                     task_type=task_type)
+                     task_type=task_type,
+                     writer=writer)
+
+    writer.close()
