@@ -6,9 +6,9 @@
   "evaluation_config.modularity_explicitness.batch_size": "16",
   "evaluation_config.modularity_explicitness.num_test": "5000",
   "evaluation_config.modularity_explicitness.num_train": "10000",
-  "evaluation_results.modularity_score": 0.877290674776385,
-  "evaluation_results.explicitness_score_train": 0.8563677082006826,
-  "evaluation_results.explicitness_score_test": 0.8541211349290926,
-  "evaluation_results.elapsed_time": 13.048977136611938,
-  "evaluation_results.uuid": "dcdfdcf0-95cd-44e9-8b09-e73b9e522222"
+  "evaluation_results.modularity_score": 0.9142111274573776,
+  "evaluation_results.explicitness_score_train": 0.8674161942918863,
+  "evaluation_results.explicitness_score_test": 0.8668585526067064,
+  "evaluation_results.elapsed_time": 12.474047660827637,
+  "evaluation_results.uuid": "0ecba494-ea71-4979-9114-28ad51cc35ea"
 }

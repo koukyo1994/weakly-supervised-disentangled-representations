@@ -5,7 +5,7 @@
   "evaluation_config.sap_score.continuous_factors": "False",
   "evaluation_config.sap_score.num_test": "5000",
   "evaluation_config.sap_score.num_train": "10000",
-  "evaluation_results.SAP_score": 0.014280000000000004,
-  "evaluation_results.elapsed_time": 8.118910551071167,
-  "evaluation_results.uuid": "3179d442-bf94-4f7c-8563-f426d096fc9f"
+  "evaluation_results.SAP_score": 0.025920000000000006,
+  "evaluation_results.elapsed_time": 7.919963359832764,
+  "evaluation_results.uuid": "4fa1f555-cd32-4956-93ac-e9f9b3e2da0c"
 }
