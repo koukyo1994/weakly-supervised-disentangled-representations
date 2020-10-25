@@ -12,7 +12,6 @@ dataset:
   name: dsprites_full
   type: unsupervised
   params:
-    seed: 0
     iterator_len: 20000
 
 loader:
