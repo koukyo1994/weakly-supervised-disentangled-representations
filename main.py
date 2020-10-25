@@ -123,7 +123,7 @@ def validate(loader,
                        use_script_module=True)
     compute_metrics(exp_path.parent.parent,
                     dataset=dataset,
-                    random_seed=config["dataset"]["params"]["seed"],
+                    random_seed=config["globals"]["seed"],
                     epoch=epoch)
     with open(exp_path.parent.parent.parent / "metric_results.json", "r") as f:
         metric_results = json.load(f)
@@ -213,3 +213,7 @@ if __name__ == "__main__":
                          writer=writer)
 
         writer.close()
+
+    # aggregate results
+    if multirun:
+        pass
