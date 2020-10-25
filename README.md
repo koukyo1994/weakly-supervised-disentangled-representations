@@ -61,7 +61,6 @@ dataset:
   name: dsprites_full  # Valid name for `disentanglement_lib/data/ground_truth/named_data/get_named_ground_truth_data`
   type: unsupervised  # Either `unsupervised` or `weak`
   params:  # Arguments for the pytorch dataset in `dataset/pytorch.py`
-    seed: 0
     iterator_len: 20000
 
 loader:  # Arguments for `torch.utils.data.DataLoader`

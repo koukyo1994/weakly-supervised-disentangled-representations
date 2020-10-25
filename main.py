@@ -140,59 +140,76 @@ if __name__ == "__main__":
     args = utils.get_parser().parse_args()
     config = utils.load_config(args.config)
 
+    global_params = config["globals"]
+    if isinstance(global_params["seed"], list):
+        multirun = True
+        seeds = global_params["seed"]
+    else:
+        multirun = False
+        seeds = [global_params["seed"]]
+
     SAVE_DIR = Path(f"assets/run/{args.config.split('/')[-1].replace('.yml', '')}")
     SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
-    MODEL_OUTPUT_DIR = Path(
-        f"experiment/{args.config.split('/')[-1].replace('.yml', '')}/checkpoints")
-    MODEL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    for seed in seeds:
+        print("*" * 100)
+        print(f"SEED: {seed}")
+        if multirun:
+            MODEL_OUTPUT_DIR = Path(
+                f"experiment/{args.config.split('/')[-1].replace('.yml', '')}/seed{seed}/checkpoints")
+        else:
+            MODEL_OUTPUT_DIR = Path(
+                f"experiment/{args.config.split('/')[-1].replace('.yml', '')}/checkpoints")
+        MODEL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    EXP_DIR = MODEL_OUTPUT_DIR / "representation" / "results"
-    EXP_DIR.mkdir(parents=True, exist_ok=True)
+        EXP_DIR = MODEL_OUTPUT_DIR / "representation" / "results"
+        EXP_DIR.mkdir(parents=True, exist_ok=True)
 
-    RESULT_DIR = MODEL_OUTPUT_DIR.parent
-    writer = SummaryWriter(log_dir=RESULT_DIR)
+        RESULT_DIR = MODEL_OUTPUT_DIR.parent
+        writer = SummaryWriter(log_dir=RESULT_DIR)
 
-    EXP_PATH = EXP_DIR.parent / "pytorch_model.pt"
+        EXP_PATH = EXP_DIR.parent / "pytorch_model.pt"
 
-    utils.set_seed(config["globals"]["seed"])
+        utils.set_seed(seed)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    dataset = get_named_ground_truth_data(config["dataset"]["name"])
-    task_type = config["dataset"]["type"]
+        dataset = get_named_ground_truth_data(config["dataset"]["name"])
+        task_type = config["dataset"]["type"]
 
-    if task_type == "weak":
-        torch_dataset = WeaklySupervisedDataset(
-            dataset,
-            **config["dataset"]["params"])
-    else:
-        torch_dataset = UnsupervisedDataset(  # type: ignore
-            dataset,
-            **config["dataset"]["params"])
+        if task_type == "weak":
+            torch_dataset = WeaklySupervisedDataset(
+                dataset,
+                seed=seed,
+                **config["dataset"]["params"])
+        else:
+            torch_dataset = UnsupervisedDataset(  # type: ignore
+                dataset,
+                seed=seed,
+                **config["dataset"]["params"])
 
-    loader = DataLoader(torch_dataset, batch_size=config["loader"]["batch_size"])
-    valid_loader = DataLoader(torch_dataset, batch_size=8)
-    model = get_model(config).to(device)
+        loader = DataLoader(torch_dataset, batch_size=config["loader"]["batch_size"])
+        valid_loader = DataLoader(torch_dataset, batch_size=8)
+        model = get_model(config).to(device)
 
-    optimizer = getattr(optim, config["optimizer"]["name"], optim.Adam)(
-        model.parameters(),
-        **config["optimizer"]["params"])
+        optimizer = getattr(optim, config["optimizer"]["name"], optim.Adam)(
+            model.parameters(),
+            **config["optimizer"]["params"])
 
-    for epoch in range(config["training"]["epochs"]):
-        print("#" * 100)
-        print(f"Epoch: {epoch + 1}")
-        train_one_epoch(loader, model, optimizer, device, writer, epoch)
-        if (epoch + 1) % config["logging"]["validate_interval"] == 0:
-            validate(valid_loader,
-                     dataset,
-                     model,
-                     device,
-                     save_dir=SAVE_DIR,
-                     exp_path=EXP_PATH,
-                     epoch=epoch + 1,
-                     config=config,
-                     task_type=task_type,
-                     writer=writer)
+        for epoch in range(config["training"]["epochs"]):
+            print("#" * 100)
+            print(f"Epoch: {epoch + 1}")
+            train_one_epoch(loader, model, optimizer, device, writer, epoch)
+            if (epoch + 1) % config["logging"]["validate_interval"] == 0:
+                validate(valid_loader,
+                         dataset,
+                         model,
+                         device,
+                         save_dir=SAVE_DIR,
+                         exp_path=EXP_PATH,
+                         epoch=epoch + 1,
+                         config=config,
+                         task_type=task_type,
+                         writer=writer)
 
-    writer.close()
+        writer.close()
