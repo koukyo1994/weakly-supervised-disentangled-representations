@@ -1,0 +1,8 @@
+{
+  "informativeness_train": 0.74466,
+  "informativeness_test": 0.39852000000000004,
+  "disentanglement": 0.02226737354587952,
+  "completeness": 0.016994498597994893,
+  "elapsed_time": 488.9490306377411,
+  "uuid": "79517794-936a-4210-8c01-3c3f6d6cd138"
+}

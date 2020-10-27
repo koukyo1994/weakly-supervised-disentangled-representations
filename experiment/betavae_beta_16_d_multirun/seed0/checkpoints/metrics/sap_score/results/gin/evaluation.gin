@@ -1,0 +1,11 @@
+# Parameters for evaluation:
+# ==============================================================================
+evaluation.evaluation_fn = @sap_score
+evaluation.name = 'sap_score'
+
+# Parameters for sap_score:
+# ==============================================================================
+sap_score.batch_size = 16
+sap_score.continuous_factors = False
+sap_score.num_test = 5000
+sap_score.num_train = 10000
