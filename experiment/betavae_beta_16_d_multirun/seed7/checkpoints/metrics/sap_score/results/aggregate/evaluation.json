@@ -1,0 +1,11 @@
+{
+  "evaluation_config.evaluation.evaluation_fn": "@sap_score",
+  "evaluation_config.evaluation.name": "'sap_score'",
+  "evaluation_config.sap_score.batch_size": "16",
+  "evaluation_config.sap_score.continuous_factors": "False",
+  "evaluation_config.sap_score.num_test": "5000",
+  "evaluation_config.sap_score.num_train": "10000",
+  "evaluation_results.SAP_score": 0.003920000000000003,
+  "evaluation_results.elapsed_time": 7.474776983261108,
+  "evaluation_results.uuid": "e332df0a-e42b-48d1-bb77-8d7f469db8a3"
+}
