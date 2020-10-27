@@ -12,7 +12,7 @@ dataset:
   name: dsprites_full
   type: unsupervised
   params:
-    iterator_len: 20000
+    iterator_len: 19200000
 
 loader:
   batch_size: 64
@@ -22,8 +22,5 @@ optimizer:
   params:
     lr: 0.0001
 
-training:
-  epochs: 1000
-
 logging:
-  validate_interval: 100
+  validate_interval: 30000
