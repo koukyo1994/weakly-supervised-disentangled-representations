@@ -1,6 +1,9 @@
 import json
 import os
 
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 import torch
 import torch.optim as optim
 
@@ -16,6 +19,7 @@ from metrics import compute_metrics
 from models import get_model
 
 os.environ["DISENTANGLEMENT_LIB_DATA"] = "./data"
+sns.set()
 
 
 def train_one_epoch(loader, model, optimizer, device, writer: SummaryWriter, epoch: int):
@@ -132,6 +136,58 @@ def validate(loader,
         writer.add_scalar(tag=key, scalar_value=epoch_result[key], global_step=epoch)
 
 
+def aggregate_multirun_results(base_dir: Path, seeds: list, config: dict):
+    metric_results_dict: dict = {}
+    for seed in seeds:
+        metric_results_path = base_dir / f"seed{seed}/metric_results.json"
+        with open(metric_results_path, "r") as f:
+            metric_results = json.load(f)
+
+        # metric_results = {"epoch100": {"dci": 0.222, "sap_score": ...}, ...}
+        for epoch_key in metric_results:
+            epoch = int(epoch_key.replace("epoch", ""))
+            if metric_results_dict.get(epoch) is None:
+                metric_results_dict[epoch] = {}
+            epoch_result = metric_results[epoch_key]
+            for metric_key in epoch_result:
+                if metric_results_dict[epoch].get(metric_key) is None:
+                    metric_results_dict[epoch][metric_key] = []
+                metric_results_dict[epoch][metric_key].append(epoch_result[metric_key])
+
+    for epoch in metric_results_dict:
+        metric_types = []
+        metric_values = []
+        for metric_key in metric_results_dict[epoch]:
+            metrics = metric_results_dict[epoch]
+            metric_types.extend([metric_key] * len(metrics[metric_key]))
+            metric_values.extend(metrics[metric_key])
+
+        metric_df = pd.DataFrame({
+            "metric_types": metric_types,
+            "metric_values": metric_values
+        })
+        ax = sns.violinplot(
+            data=metric_df,
+            x="metric_types",
+            y="metric_values",
+            color="skyblue",
+            alpha=0.5)
+        sns.stripplot(
+            data=metric_df,
+            x="metric_types",
+            y="metric_values",
+            color="k",
+            alpha=0.5,
+            ax=ax)
+        ax.set_xlabel("")
+        ax.set_ylabel("disentanglement metric")
+        ax.set_title(f"{config['models']['name']}: {config['dataset']['name']}")
+        ax.grid(True)
+        ax.set_ylim(0, 1.0)
+        plt.savefig(base_dir / f"metrics_epoch_{epoch}.png")
+        plt.close()
+
+
 if __name__ == "__main__":
     from disentanglement_lib.data.ground_truth.named_data import get_named_ground_truth_data
 
@@ -216,4 +272,7 @@ if __name__ == "__main__":
 
     # aggregate results
     if multirun:
-        pass
+        aggregate_multirun_results(
+            base_dir=Path(f"experiment/{args.config.split('/')[-1].replace('.yml', '')}"),
+            seeds=seeds,
+            config=config)
