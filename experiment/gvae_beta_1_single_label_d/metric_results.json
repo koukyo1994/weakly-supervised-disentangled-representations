@@ -1,72 +1,72 @@
 {
     "epoch100": {
-        "factor_vae_metric": 0.8622,
-        "modularity_score": 0.8206305685497719,
-        "sap_score": 0.06323999999999999,
-        "mig": 0.3720975257962965,
-        "dci": 0.5343995752739465
+        "factor_vae_metric": 0.8734,
+        "modularity_score": 0.7801126956976416,
+        "sap_score": 0.06967999999999999,
+        "mig": 0.38734084257708196,
+        "dci": 0.5325513133240982
     },
     "epoch200": {
-        "factor_vae_metric": 0.8734,
-        "modularity_score": 0.8876361144097137,
-        "sap_score": 0.08615999999999999,
-        "mig": 0.4125463063337965,
-        "dci": 0.5469988777053019
+        "factor_vae_metric": 0.8856,
+        "modularity_score": 0.802386667112571,
+        "sap_score": 0.06936,
+        "mig": 0.39410313101614436,
+        "dci": 0.5538236827839845
     },
     "epoch300": {
-        "factor_vae_metric": 0.9276,
-        "modularity_score": 0.8997445052259252,
-        "sap_score": 0.09824000000000002,
-        "mig": 0.4997934905087778,
-        "dci": 0.624123683307741
+        "factor_vae_metric": 0.92,
+        "modularity_score": 0.8540149707999809,
+        "sap_score": 0.07932000000000002,
+        "mig": 0.41336930934297184,
+        "dci": 0.5784075396432913
     },
     "epoch400": {
-        "factor_vae_metric": 0.9258,
-        "modularity_score": 0.900560775423768,
-        "sap_score": 0.10712000000000002,
-        "mig": 0.5697556497097003,
-        "dci": 0.7058538536638096
+        "factor_vae_metric": 0.9382,
+        "modularity_score": 0.8933686725058443,
+        "sap_score": 0.08619999999999997,
+        "mig": 0.44853946381876886,
+        "dci": 0.6143624596718097
     },
     "epoch500": {
-        "factor_vae_metric": 0.9146,
-        "modularity_score": 0.9097841282559693,
-        "sap_score": 0.1072,
-        "mig": 0.5910142176676173,
-        "dci": 0.7346019837319524
+        "factor_vae_metric": 0.9502,
+        "modularity_score": 0.8731215865046323,
+        "sap_score": 0.09803999999999999,
+        "mig": 0.4691010575058063,
+        "dci": 0.6369138816252613
     },
     "epoch600": {
-        "factor_vae_metric": 0.9162,
-        "modularity_score": 0.9228903691329993,
-        "sap_score": 0.11436000000000002,
-        "mig": 0.6020774032540832,
-        "dci": 0.7589639685707774
+        "factor_vae_metric": 0.9602,
+        "modularity_score": 0.8742425831472314,
+        "sap_score": 0.09795999999999999,
+        "mig": 0.4731776160660134,
+        "dci": 0.6584475702992578
     },
     "epoch700": {
-        "factor_vae_metric": 0.9156,
-        "modularity_score": 0.9281451160868492,
-        "sap_score": 0.11656,
-        "mig": 0.6058214203497475,
-        "dci": 0.7782348242437626
+        "factor_vae_metric": 0.9644,
+        "modularity_score": 0.9111587934021733,
+        "sap_score": 0.09984,
+        "mig": 0.47279897922305614,
+        "dci": 0.6722950353315416
     },
     "epoch800": {
-        "factor_vae_metric": 0.9418,
-        "modularity_score": 0.9311541746374576,
-        "sap_score": 0.12408,
-        "mig": 0.6066104232128009,
-        "dci": 0.7941377761880876
+        "factor_vae_metric": 0.9552,
+        "modularity_score": 0.9182517019521246,
+        "sap_score": 0.11164,
+        "mig": 0.493029800365142,
+        "dci": 0.6836739972218221
     },
     "epoch900": {
-        "factor_vae_metric": 0.9494,
-        "modularity_score": 0.9380151432211841,
-        "sap_score": 0.12067999999999997,
-        "mig": 0.6104351857356288,
-        "dci": 0.7929455187845569
+        "factor_vae_metric": 0.953,
+        "modularity_score": 0.8623771397610023,
+        "sap_score": 0.10651999999999999,
+        "mig": 0.495548834667523,
+        "dci": 0.6970989116271122
     },
     "epoch1000": {
-        "factor_vae_metric": 0.9544,
-        "modularity_score": 0.9413874174995586,
-        "sap_score": 0.12279999999999998,
-        "mig": 0.611489177846362,
-        "dci": 0.8050645280368577
+        "factor_vae_metric": 0.948,
+        "modularity_score": 0.8944288243295535,
+        "sap_score": 0.1092,
+        "mig": 0.5013271800445462,
+        "dci": 0.7135078185926583
     }
 }

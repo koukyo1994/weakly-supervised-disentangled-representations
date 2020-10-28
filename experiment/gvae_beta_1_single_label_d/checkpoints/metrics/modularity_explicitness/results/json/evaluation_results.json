@@ -1,7 +1,7 @@
 {
-  "modularity_score": 0.9413874174995586,
-  "explicitness_score_train": 0.9814175031289679,
-  "explicitness_score_test": 0.9792915858341843,
-  "elapsed_time": 19.23900294303894,
-  "uuid": "8e83f710-6a6f-4917-a693-7e681a24e6b9"
+  "modularity_score": 0.8944288243295535,
+  "explicitness_score_train": 0.9283062285198763,
+  "explicitness_score_test": 0.9263029081544325,
+  "elapsed_time": 17.179320096969604,
+  "uuid": "35b17c57-43ee-4a73-a8de-3c026510d919"
 }

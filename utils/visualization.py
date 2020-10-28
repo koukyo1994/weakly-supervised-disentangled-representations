@@ -104,7 +104,7 @@ def save_paired_reconstructed_images(save_path: Path,
             axes[i, j].tick_params(labelleft=False, left=False)
 
     fig.tight_layout()
-    writer.add_figure(tag="reconstructed", figure=fig, global_step=epoch)
+    writer.add_figure(tag="reconstructed", figure=fig, global_step=epoch, close=False)
     plt.savefig(save_path)
     plt.close()
 
@@ -220,7 +220,7 @@ def latent_traversal_static(model,
             ai.imshow(xi)
             if j == 0:
                 ai.set_ylabel(f"z{j}={z_values[i]:.2f}", rotation=90, size="large")
-    writer.add_figure(tag="traversal", figure=fig, global_step=epoch)
+    writer.add_figure(tag="traversal", figure=fig, global_step=epoch, close=False)
     fig.savefig(save_path, bbox_inches="tight", pad_inches=0)
     plt.close()
 
@@ -369,6 +369,6 @@ def latent_histogram(model,
         axes[i].set_ylabel("freq")
         axes[i].hist(representations_np[:, i], bins=30, density=True, histtype="bar")
     plt.tight_layout()
-    writer.add_figure(tag="histogram", figure=fig, global_step=epoch)
+    writer.add_figure(tag="histogram", figure=fig, global_step=epoch, close=False)
     plt.savefig(save_path)
     plt.close()

@@ -19,7 +19,6 @@ from metrics import compute_metrics
 from models import get_model
 
 os.environ["DISENTANGLEMENT_LIB_DATA"] = "./data"
-sns.set()
 
 
 def train_and_validate(loader,
@@ -115,7 +114,7 @@ def train_and_validate(loader,
 
             save_path = save_dir / f"latent_histogram_step_{step + 1}.png"
             utils.latent_histogram(
-                model, loader, device, save_path, task_type, writer=writer, epoch=step + 1)
+                model, valid_loader, device, save_path, task_type, writer=writer, epoch=step + 1)
             utils.export_model(utils.RepresentationExtractor(model.encoder, "mean"),
                                exp_path,
                                input_shape=model.input_shape,
@@ -123,7 +122,8 @@ def train_and_validate(loader,
             compute_metrics(exp_path.parent.parent,
                             dataset=dataset,
                             random_seed=config["globals"]["seed"],
-                            epoch=step + 1)
+                            epoch=step + 1,
+                            prefix="step")
             with open(exp_path.parent.parent.parent / "metric_results.json", "r") as f:
                 metric_results = json.load(f)
             step_result = metric_results[f"step{step + 1}"]
@@ -205,13 +205,13 @@ if __name__ == "__main__":
         print("*" * 100)
         print(f"SEED: {seed}")
         if multirun:
-            SAVE_DIR = Path(f"assets/run/{args.config.split('/')[-1].replace('.yml', '')}/seed{seed}")
+            SAVE_DIR = Path(f"assets/run/v2/{args.config.split('/')[-1].replace('.yml', '')}/seed{seed}")
             MODEL_OUTPUT_DIR = Path(
-                f"experiment/{args.config.split('/')[-1].replace('.yml', '')}/seed{seed}/checkpoints")
+                f"experiment/v2/{args.config.split('/')[-1].replace('.yml', '')}/seed{seed}/checkpoints")
         else:
-            SAVE_DIR = Path(f"experiment/{args.config.split('/')[-1].replace('.yml', '')}")
+            SAVE_DIR = Path(f"assets/run/v2/{args.config.split('/')[-1].replace('.yml', '')}")
             MODEL_OUTPUT_DIR = Path(
-                f"experiment/{args.config.split('/')[-1].replace('.yml', '')}/checkpoints")
+                f"experiment/v2/{args.config.split('/')[-1].replace('.yml', '')}/checkpoints")
 
         SAVE_DIR.mkdir(parents=True, exist_ok=True)
         MODEL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -236,14 +236,22 @@ if __name__ == "__main__":
                 dataset,
                 seed=seed,
                 **config["dataset"]["params"])
+            valid_dataset = WeaklySupervisedDataset(
+                dataset,
+                seed=seed,
+                iterator_len=300)
         else:
             torch_dataset = UnsupervisedDataset(  # type: ignore
                 dataset,
                 seed=seed,
                 **config["dataset"]["params"])
+            valid_dataset = UnsupervisedDataset(  # type: ignore
+                dataset,
+                seed=seed,
+                iterator_len=300)
 
         loader = DataLoader(torch_dataset, batch_size=config["loader"]["batch_size"])
-        valid_loader = DataLoader(torch_dataset, batch_size=8)
+        valid_loader = DataLoader(valid_dataset, batch_size=8)
         model = get_model(config).to(device)
 
         optimizer = getattr(optim, config["optimizer"]["name"], optim.Adam)(
