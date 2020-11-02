@@ -20,7 +20,7 @@ class BetaVAE(nn.Module):
     def reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor):
         if self.training:
             std = torch.exp(0.5 * logvar)
-            return mu + std * torch.rand_like(std)
+            return mu + std * torch.randn_like(std)
         else:
             return mu
 

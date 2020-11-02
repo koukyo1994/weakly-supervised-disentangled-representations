@@ -90,7 +90,7 @@ class GroupVAE(nn.Module):
     def reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor):
         if self.training:
             std = torch.exp(0.5 * logvar)
-            return mu + std * torch.rand_like(std)
+            return mu + std * torch.randn_like(std)
         else:
             return mu
 
@@ -164,7 +164,7 @@ class GroupVAE(nn.Module):
                                 logvar_1: torch.Tensor) -> torch.Tensor:
         var_0 = logvar_0.exp()
         var_1 = logvar_1.exp()
-        return var_0 / var_1 + (mu_0 - mu_1).pow(2) / var_1 - 1 + var_1 - var_0
+        return var_0 / var_1 + (mu_0 - mu_1).pow(2) / var_1 - 1 + logvar_1 - logvar_0
 
     @staticmethod
     def aggregate_labels(mu: torch.Tensor,

@@ -1,0 +1,14 @@
+{
+  "evaluation_config.evaluation.evaluation_fn": "@factor_vae_score",
+  "evaluation_config.evaluation.name": "'factor_vae_metric'",
+  "evaluation_config.factor_vae_score.batch_size": "64",
+  "evaluation_config.factor_vae_score.num_eval": "5000",
+  "evaluation_config.factor_vae_score.num_train": "10000",
+  "evaluation_config.factor_vae_score.num_variance_estimate": "10000",
+  "evaluation_config.prune_dims.threshold": "0.05",
+  "evaluation_results.train_accuracy": 0.3765,
+  "evaluation_results.eval_accuracy": 0.3814,
+  "evaluation_results.num_active_dims": 10,
+  "evaluation_results.elapsed_time": 19.687938451766968,
+  "evaluation_results.uuid": "4e2e278f-a307-4941-8301-735a9acf21e4"
+}

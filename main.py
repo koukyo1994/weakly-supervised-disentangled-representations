@@ -252,21 +252,22 @@ if __name__ == "__main__":
             model.parameters(),
             **config["optimizer"]["params"])
 
-        for epoch in range(config["training"]["epochs"]):
-            print("#" * 100)
-            print(f"Epoch: {epoch + 1}")
-            train_one_epoch(loader, model, optimizer, device, writer, epoch)
-            if (epoch + 1) % config["logging"]["validate_interval"] == 0:
-                validate(valid_loader,
-                         dataset,
-                         model,
-                         device,
-                         save_dir=SAVE_DIR,
-                         exp_path=EXP_PATH,
-                         epoch=epoch + 1,
-                         config=config,
-                         task_type=task_type,
-                         writer=writer)
+        if not args.skip_train:
+            for epoch in range(config["training"]["epochs"]):
+                print("#" * 100)
+                print(f"Epoch: {epoch + 1}")
+                train_one_epoch(loader, model, optimizer, device, writer, epoch)
+                if (epoch + 1) % config["logging"]["validate_interval"] == 0:
+                    validate(valid_loader,
+                             dataset,
+                             model,
+                             device,
+                             save_dir=SAVE_DIR,
+                             exp_path=EXP_PATH,
+                             epoch=epoch + 1,
+                             config=config,
+                             task_type=task_type,
+                             writer=writer)
 
         writer.close()
 

@@ -8,4 +8,5 @@ def get_parser():
                         metavar="FILE",
                         help="path/to/config",
                         default="configs/gvae_single_label_d.yml")
+    parser.add_argument("--skip-train", action="store_true", dest="skip_train")
     return parser

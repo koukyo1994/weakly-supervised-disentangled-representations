@@ -14,7 +14,8 @@ from disentanglement_lib.config.unsupervised_study_v1 import sweep as unsupervis
 def compute_metrics(exp_path,
                     dataset,
                     random_seed,
-                    epoch=0):
+                    epoch=0,
+                    prefix="epoch"):
     overwrite = True
     _study = unsupervised_study_v1.UnsupervisedStudyV1()
     evaluation_configs = sorted(_study.get_eval_config_files())
@@ -87,10 +88,10 @@ def compute_metrics(exp_path,
     if metric_result_path.exists():
         with open(metric_result_path, "r") as f:
             metric_results = json.load(f)
-        metric_results[f"epoch{epoch}"] = final_scores
+        metric_results[f"{prefix}{epoch}"] = final_scores
         save_json(metric_results, metric_result_path)
     else:
-        metric_results = {f"epoch{epoch}": final_scores}
+        metric_results = {f"{prefix}{epoch}": final_scores}
         save_json(metric_results, metric_result_path)
     print("Final Scores : ", final_scores)
 
