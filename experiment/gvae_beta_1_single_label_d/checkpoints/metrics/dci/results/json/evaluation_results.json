@@ -1,8 +1,8 @@
 {
-  "informativeness_train": 0.9971,
-  "informativeness_test": 0.9208399999999999,
-  "disentanglement": 0.8050645280368577,
-  "completeness": 0.6884724746848649,
-  "elapsed_time": 522.322027683258,
-  "uuid": "682202ff-9f36-458d-b076-3b318cfb366e"
+  "informativeness_train": 0.99458,
+  "informativeness_test": 0.9172800000000001,
+  "disentanglement": 0.7135078185926583,
+  "completeness": 0.6355033572292271,
+  "elapsed_time": 494.0720753669739,
+  "uuid": "bb42d0b9-e5dd-4715-a12b-aafcbe9030aa"
 }
