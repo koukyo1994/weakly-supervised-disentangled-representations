@@ -1,0 +1,11 @@
+{
+  "evaluation_config.discretizer.discretizer_fn": "@histogram_discretizer",
+  "evaluation_config.discretizer.num_bins": "20",
+  "evaluation_config.evaluation.evaluation_fn": "@mig",
+  "evaluation_config.evaluation.name": "'mig'",
+  "evaluation_config.mig.batch_size": "16",
+  "evaluation_config.mig.num_train": "10000",
+  "evaluation_results.discrete_mig": 0.4788135887456346,
+  "evaluation_results.elapsed_time": 0.6135177612304688,
+  "evaluation_results.uuid": "3c7bd0bb-0f05-43d4-938e-9897e5e1836a"
+}
