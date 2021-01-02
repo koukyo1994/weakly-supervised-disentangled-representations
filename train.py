@@ -178,9 +178,18 @@ def aggregate_multirun_results(base_dir: Path, seeds: list, config: dict):
             ax=ax)
         ax.set_xlabel("")
         ax.set_ylabel("disentanglement metric")
-        ax.set_title(f"{config['models']['name']}: {config['dataset']['name']}")
+        if config["models"]["name"] == "GroupVAE":
+            if config["models"]["params"]["aggregation"] == "label":
+                title = "GVAE"
+            else:
+                title = "Ada-GVAE"
+        else:
+            title = config["models"]["name"]
+        ax.set_title(f"{title}: {config['dataset']['name']}")
         ax.grid(True)
         ax.set_ylim(0, 1.0)
+        plt.setp(ax.get_xticklabels(), rotation=45)
+        plt.tight_layout()
         plt.savefig(base_dir / f"metrics_step_{step}.png")
         plt.close()
 
