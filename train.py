@@ -277,6 +277,6 @@ if __name__ == "__main__":
     # aggregate results
     if multirun:
         aggregate_multirun_results(
-            base_dir=Path(f"experiment/{args.config.split('/')[-1].replace('.yml', '')}"),
+            base_dir=Path(f"experiment/v2/{args.config.split('/')[-1].replace('.yml', '')}"),
             seeds=seeds,
             config=config)
