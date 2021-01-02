@@ -1,0 +1,13 @@
+{
+  "evaluation_config.dci.batch_size": "16",
+  "evaluation_config.dci.num_test": "5000",
+  "evaluation_config.dci.num_train": "10000",
+  "evaluation_config.evaluation.evaluation_fn": "@dci",
+  "evaluation_config.evaluation.name": "'dci'",
+  "evaluation_results.informativeness_train": 0.99558,
+  "evaluation_results.informativeness_test": 0.9232800000000001,
+  "evaluation_results.disentanglement": 0.8092041179716625,
+  "evaluation_results.completeness": 0.7758940656985316,
+  "evaluation_results.elapsed_time": 353.275817155838,
+  "evaluation_results.uuid": "c14c04a7-8200-45a9-aef1-35d1fc00ec75"
+}

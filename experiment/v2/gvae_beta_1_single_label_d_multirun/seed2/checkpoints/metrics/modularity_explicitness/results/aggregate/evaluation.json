@@ -1,0 +1,14 @@
+{
+  "evaluation_config.discretizer.discretizer_fn": "@histogram_discretizer",
+  "evaluation_config.discretizer.num_bins": "20",
+  "evaluation_config.evaluation.evaluation_fn": "@modularity_explicitness",
+  "evaluation_config.evaluation.name": "'modularity_explicitness'",
+  "evaluation_config.modularity_explicitness.batch_size": "16",
+  "evaluation_config.modularity_explicitness.num_test": "5000",
+  "evaluation_config.modularity_explicitness.num_train": "10000",
+  "evaluation_results.modularity_score": 0.8681719023978305,
+  "evaluation_results.explicitness_score_train": 0.9244099741569706,
+  "evaluation_results.explicitness_score_test": 0.9212744630915293,
+  "evaluation_results.elapsed_time": 6.0501868724823,
+  "evaluation_results.uuid": "a3835384-4954-4804-90da-be94d3bba485"
+}
