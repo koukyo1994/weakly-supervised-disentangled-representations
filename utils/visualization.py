@@ -50,7 +50,7 @@ def save_reconstructed_images(save_path: Path,
                 left=False)
 
     fig.tight_layout()
-    writer.add_figure(tag="reconstructed", figure=fig, global_step=epoch)
+    writer.add_figure(tag="reconstructed", figure=fig, global_step=epoch, close=False)
     plt.savefig(save_path)
     plt.close()
 
