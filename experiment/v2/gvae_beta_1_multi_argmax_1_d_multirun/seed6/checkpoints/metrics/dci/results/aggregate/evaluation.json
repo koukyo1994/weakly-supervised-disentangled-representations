@@ -4,10 +4,10 @@
   "evaluation_config.dci.num_train": "10000",
   "evaluation_config.evaluation.evaluation_fn": "@dci",
   "evaluation_config.evaluation.name": "'dci'",
-  "evaluation_results.informativeness_train": 0.76688,
-  "evaluation_results.informativeness_test": 0.40540000000000004,
-  "evaluation_results.disentanglement": 0.08662128302095096,
-  "evaluation_results.completeness": 0.06951052900884461,
-  "evaluation_results.elapsed_time": 353.07702016830444,
-  "evaluation_results.uuid": "a3812952-6671-481d-9a9b-9c01330f79db"
+  "evaluation_results.informativeness_train": 0.8005599999999999,
+  "evaluation_results.informativeness_test": 0.4864,
+  "evaluation_results.disentanglement": 0.21312224751788644,
+  "evaluation_results.completeness": 0.1653152235286847,
+  "evaluation_results.elapsed_time": 355.6417078971863,
+  "evaluation_results.uuid": "443d03c9-a657-489c-bb7f-a8bd4a3e0482"
 }
